@@ -11,7 +11,7 @@ def banner():
 	print("==================================================================")
 	print("            Generate Multiple Nessus Activation code                       ")
 	print("   Don't misuse this script other then for Pentesting purpose              ")
-	print("                      \033[1;31;10mBy:Fools of Security :)\033[1;31;0m     ")
+	print("                      \033[1;31;10mBy: Mahyar and Fools of Security :)))\033[1;31;0m     ")
 	print("==================================================================")
 
 
