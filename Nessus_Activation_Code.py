@@ -2,9 +2,10 @@ from bs4 import BeautifulSoup
 import requests
 import time
 import re
-from tempmail import TempMail
+from mohmal import Mohmal
 import os
 import sys
+import argparse
 
 def banner():
 	print("==================================================================")
@@ -14,9 +15,9 @@ def banner():
 	print("==================================================================")
 
 
-def nessus_activation():
-	tmp = TempMail()
-	email = tmp.get_email_address()  
+def nessus_activation(firstname,lastname):
+	tmp = Mohmal()
+	email = tmp.Get_Random_Email() 
 	print("Your Temp mail address is successfully created!")
 	print ("Email Address: "+ email)
 	# print tmp.get_mailbox(email)  
@@ -29,27 +30,25 @@ def nessus_activation():
 	   tkn=link.attrs['value']
 	 else:
 	   print("not found")
-	fname=raw_input("First Name:")
-	lname=raw_input("Last Name:")
+	fname=firstname
+	lname=lastname
 	# nes_email=raw_input("Email:")
-	params={"first_name":fname,"last_name":lname,"email":email,"country":"IN","Accept":"Agree","robot":"human","type":"homefeed","token":tkn,"submit":"Register"}
-	r = requests.post("https://www.tenable.com/products/nessus-home", data=params)
+	params={"first_name":fname,"last_name":lname,"email":email,"country":"NL","robot":"human","type":"homefeed","token":tkn,"submit":"Register"}
+	r = requests.post("https://www.tenable.com/products/nessus/nessus-essentials", data=params)
 	if r.status_code == 200:
 		bs=BeautifulSoup(r.text,'html.parser')
 		keyword=bs.find("title").get_text()
 		success=keyword.split('|')
-		if str(success[0][:-1]) == 'Thank You for Registering for Nessus Home!':
+		if str(success[0][:-1]) == 'Thank You for Registering for Nessus Essentials!':
 			print('\033[1;32;10m'+str(success[0][:-1])+'\033[1;32;0m')
 			while  True:
-				if tmp.get_mailbox(email):
-					for emails in tmp.get_mailbox(email):
-						if emails['mail_subject'] == 'Tenable Nessus Home Activation Code':
-							message=emails['mail_text']
-							receive=raw_input("To check for Nessus Activation Code in Inbox, press enter")
-							regex = r"\w{4}(?:-\w{4}){4}"
-							activation_code=re.search(regex,message)
-							print('\033[1;32;10mNessus Activation Code is:\033[1;32;0m'+activation_code.group())
-							sys.exit()
+				mail=tmp.get_mailbox("Tenable Nessus Essentials Activation Code")
+				if mail is not None:
+					message=tmp.read_mail(mail)
+					regex = r"\w{4}(?:-\w{4}){4}"
+					activation_code=re.search(regex,message)
+					print('\033[1;32;10mNessus Activation Code is:\033[1;32;0m'+activation_code.group())
+					sys.exit()
 				else:
 					print ('There are no emails yet....')
 
@@ -63,8 +62,16 @@ def nessus_activation():
 		print("something went wrong with the request")
 		sys.exit()
 
+parser=argparse.ArgumentParser()
+parser.add_argument("-f","--firstname",help="FirstName")
+parser.add_argument("-l","--lastname",help="LastName")
+
 
 if __name__ == "__main__":
+	args=parser.parse_args()
 	banner()
-	nessus_activation()
+	if False and args.firstname is None and args.lastname is None:
+		parser.print_help()
+	else:
+		nessus_activation(args.firstname,args.lastname)
 
